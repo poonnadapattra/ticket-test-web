@@ -1,5 +1,8 @@
 <template>
-  <v-card :color="cardDetail.color" class="pa-3">
+  <v-card 
+    :color="cardDetail.color"
+    class="pa-3"
+    :class="selected ? 'pa-5' : ''">
     <v-row no-gutters>
       <v-col>
         <p class="text-h5">
@@ -25,7 +28,10 @@ export default {
     cardDetail: {
       type: Object,
       default: () => ({})
-    }
+    },
+    selected: {
+      type: Boolean
+    },
   }
 }
 </script>

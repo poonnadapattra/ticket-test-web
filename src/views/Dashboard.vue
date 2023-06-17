@@ -1,18 +1,31 @@
 <template>
-  <div class="">
-    <!-- <color-theme></color-theme> -->
+  <div>
     <v-row>
       <v-col class="text-left">
         <p class="text-h3">Management Tickets</p>
       </v-col>
     </v-row>
     <v-row>
-      
-      <v-col v-for="data, i in ticketStatusList" :key="i">
-        <status-card :data="data" :cardDetail="cardDetail[data.status]"/>
+      <v-col align="end">
+        <v-btn
+          variant="outlined"
+          color="primary"
+          @click="createTicketDialog = true" >
+          <v-icon start icon="mdi-plus"></v-icon>
+          Create Ticket
+        </v-btn>
       </v-col>
     </v-row>
-    <v-btn @click="() => showEditTicketForm = !showEditTicketForm">toggle</v-btn>
+    <v-row align="end" class="mt-0">
+      <v-col v-for="data, i in ticketStatusList" :key="i">
+        <v-sheet @click="selectTicketStatus(data.status)">
+          <status-card 
+            :data="data" 
+            :cardDetail="cardDetail[data.status]"
+            :selected="data.status == selectedStatus"/>
+        </v-sheet>
+      </v-col>
+    </v-row>
     <v-row>
       <v-col>
         <v-card>
@@ -27,7 +40,6 @@
                     <th class="text-left">Description</th>
                     <th class="text-left">Contact</th>
                     <th class="text-left">Status</th>
-                    <th class="text-left"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -65,9 +77,6 @@
                         </v-list>
                       </v-menu>
                     </td>
-                    <td>
-                      <v-btn variant="text" icon="mdi-pencil" size="small"></v-btn>
-                    </td>
                   </tr>
                 </tbody>
               </v-table>
@@ -94,6 +103,15 @@
         </v-col>
       </v-fade-transition>
     </v-row>
+
+    <v-dialog
+      v-model="createTicketDialog"
+      width="auto"
+    >
+      <create-ticket-form
+        @submit="submitCreateTicket"
+        @close="closeCreateTicketDialog" />
+    </v-dialog>
   </div>
 </template>
 
@@ -102,34 +120,18 @@ import { mapActions, mapGetters } from 'vuex';
 import moment from 'moment'
 import _ from 'lodash'
 import StatusCard from '../components/StatusCard.vue'
+import CreateTicketForm from '../components/Form/CreateTicketForm.vue'
 
 export default {
   components: {
     StatusCard,
+    CreateTicketForm
   },
   data() {
     return {
       moment: moment,
       page: 1,
       size: 10,
-      statusList: ['pending', 'accepted', 'resolved', 'rejected'],
-      cardDetail: {
-        all: {
-          color: 'deep-purple-accent-2'
-        },
-        pending: {
-          color: 'orange-lighten-1'
-        },
-        accepted: {
-          color: 'green-lighten-1'
-        },
-        resolved: {
-          color: 'cyan-lighten-3'
-        },
-        rejected: {
-          color: 'pink-lighten-2'
-        },
-      },
       headers: [
         {
           title: 'title',
@@ -140,19 +142,22 @@ export default {
         { title: 'Description', key: 'description' },
         { title: 'Status', key: 'status' },
       ],
-      itemsPerPage: 5,
-      showEditTicketForm: false
+      showEditTicketForm: false,
+      createTicketDialog: false,
+      selectedStatus: 'all'
     }
   },
   watch: {
     page(newValue) {
-      this.getTicket(newValue, this.size)
+      this.getTicket({page: newValue, size: this.size})
     }
   },
   computed: {
     ...mapGetters('tickets', [
       'ticketStatusList',
-      'ticketList'
+      'ticketList',
+      'statusList',
+      'cardDetail'
     ]),
     totalTicket() {
       return _.get(this.ticketList, ['pagging', 'total_page'], 1)
@@ -160,24 +165,34 @@ export default {
   },
   mounted() {
     this.getTicketStatus()
-    this.getTicket(1, 10)
+    this.getTicket({page: 1, size: 10})
   },
   methods: {
     ...mapActions('tickets', [
       'getTicketStatus',
       'getTicketList',
-      'updateTicket'
+      'updateTicket',
+      'createTicket'
     ]),
-    getTicket(page, size) {
-      this.getTicketList({page, size})
+    getTicket(params) {
+      this.getTicketList(params)
     },
     selectStatus(id, status) {
       this.updateTicket({id, status}).then(() => {
-        this.getTicket(this.page, this.size)
+        this.getTicket({page: this.page, size: this.size})
       })
     },
-    changePage(v) {
-      console.log(v)
+    submitCreateTicket(data) {
+      this.createTicket(data)
+    },
+    closeCreateTicketDialog() {
+      this.createTicketDialog = false
+    },
+    selectTicketStatus(status) {
+      this.selectedStatus = status
+      const payload = {page: 1, size: this.size, status}
+      console.log('payload:', payload)
+      this.getTicket(payload)
     }
   }
 }
