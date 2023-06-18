@@ -26,6 +26,12 @@
         </v-sheet>
       </v-col>
     </v-row>
+    <v-row align="end" class="pa-0">
+      <v-col align="end" class="pt-0 pb-0">
+        <v-btn icon="mdi-reload" variant="plain" @click="reload">
+        </v-btn>
+      </v-col>
+    </v-row>
     <v-row>
       <v-col>
         <v-card>
@@ -47,8 +53,8 @@
                     v-for="item in ticketList.data"
                     :key="item.id"
                   >
-                    <td class="text-left">{{ moment(item.created_date).format('DD-MM-YYYY hh:mm:ss') }}</td>
-                    <td class="text-left">{{ moment(item.updated_date).format('DD-MM-YYYY hh:mm:ss') }} </td>
+                    <td class="text-left">{{ moment(item.CreatedAt).format('DD-MM-YYYY hh:mm:ss') }}</td>
+                    <td class="text-left">{{ moment(item.UpdatedAt).format('DD-MM-YYYY hh:mm:ss') }} </td>
                     <td class="text-left">{{ item.title }}</td>
                     <td class="text-left">{{ item.description }}</td>
                     <td class="text-left">{{ item.contact }}</td>
@@ -68,7 +74,7 @@
                             <v-list-item v-for="(s) in statusList"
                               :key="s"
                               :value="s"
-                              @click="selectStatus(item.id, s)"
+                              @click="selectStatus(item.ID, s)"
                               v-show="s != item.status">
                               <v-list-item-title>
                                 <span :class="'text-'+cardDetail[s].color">{{ s }}</span>
@@ -149,7 +155,7 @@ export default {
   },
   watch: {
     page(newValue) {
-      this.getTicket({page: newValue, size: this.size})
+      this.getTicket({page: newValue, size: this.size, status: this.selectedStatus})
     }
   },
   computed: {
@@ -164,6 +170,7 @@ export default {
     }
   },
   mounted() {
+    this.getContacts()
     this.getTicketStatus()
     this.getTicket({page: 1, size: 10})
   },
@@ -174,15 +181,24 @@ export default {
       'updateTicket',
       'createTicket'
     ]),
+    ...mapActions('contacts', [
+      'getContacts'
+    ]),
     getTicket(params) {
+      this.getTicketStatus()
       this.getTicketList(params)
+    },
+    reload() {
+      this.getTicketStatus()
+      this.getTicket({page: this.page, size: this.size, status: this.selectedStatus})
     },
     selectStatus(id, status) {
       this.updateTicket({id, status}).then(() => {
-        this.getTicket({page: this.page, size: this.size})
+        this.reload()
       })
     },
     submitCreateTicket(data) {
+      this.getTicketStatus()
       this.createTicket(data)
     },
     closeCreateTicketDialog() {
@@ -191,7 +207,6 @@ export default {
     selectTicketStatus(status) {
       this.selectedStatus = status
       const payload = {page: 1, size: this.size, status}
-      console.log('payload:', payload)
       this.getTicket(payload)
     }
   }

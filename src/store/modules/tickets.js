@@ -62,19 +62,18 @@ const mutations = {
 }
 
 const actions = {
-  getTicketStatus({commit}) {
+  getTicketStatus({commit, dispatch}) {
     return TicketsService.getTicketStatus().then(res => {
 
       commit('SET_TICKET_STATUS_LIST', res.data.data);
       return res;
     })
     .catch(error => {
-      console.log('error:', error)
+      dispatch('baseDialog/setShowMsgDialog', {show: true, type: 'error', message: error}, { root: true })
     });
   },
-  getTicketList({commit}, params) {
-  console.log('params:', params)
-
+  getTicketList({commit, dispatch}, params) {
+    dispatch('baseDialog/setShowLoading', true, { root: true })
     var queryParms = []
 
     for (var [key, value] of Object.entries(params)) {
@@ -84,33 +83,47 @@ const actions = {
     return TicketsService.getTicketList('?'+queryParms.join('&')).then(res => {
 
       commit('SET_TICKET_LIST', res.data.data);
-
+      dispatch('baseDialog/setShowLoading', false, { root: true })
       return res;
     })
     .catch(error => {
-      console.log('error:', error)
+      dispatch('baseDialog/setShowLoading', false, { root: true })
+      dispatch('baseDialog/setShowMsgDialog', {show: true, type: 'error', message: error}, { root: true })
     });
   },
   // eslint-disable-next-line no-unused-vars
-  updateTicket({commit}, params) {
-
+  updateTicket({commit, dispatch}, params) {
+    dispatch('baseDialog/setShowLoading', true, { root: true })
     return TicketsService.updateTicket(params).then(res => {
-
+      dispatch('baseDialog/setShowLoading', false, { root: true })
+      dispatch('baseDialog/setShowMsgDialog',
+        {
+          show: true,
+          type: 'success',
+          message: 'success'
+        }, { root: true })
       return res;
     })
     .catch(error => {
-      console.log('error:', error)
+      dispatch('baseDialog/setShowLoading', false, { root: true })
+      dispatch('baseDialog/setShowMsgDialog', {show: true, type: 'error', message: error}, { root: true })
     });
   },
   // eslint-disable-next-line no-unused-vars
-  createTicket({commit}, params) {
-
+  createTicket({commit, dispatch}, params) {
+    dispatch('baseDialog/setShowLoading', true, { root: true })
     return TicketsService.createTicket(params).then(res => {
-
+      dispatch('baseDialog/setShowLoading', false, { root: true })
+      dispatch('baseDialog/setShowMsgDialog',
+        {
+          show: true,
+          type: 'success',
+          message: 'success'
+        }, { root: true })
       return res;
     })
     .catch(error => {
-      console.log('error:', error)
+      dispatch('baseDialog/setShowMsgDialog', {show: true, type: 'error', message: error}, { root: true })
     });
   }
 }

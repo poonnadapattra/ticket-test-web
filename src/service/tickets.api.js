@@ -1,9 +1,9 @@
 import httpClient from './httpClient'
 
-const getTicketStatus = () => httpClient.get('/ticket/status')
-const getTicketList = params => httpClient.get('/ticket'+params)
-const updateTicket = params => httpClient.patch('/ticket', params)
-const createTicket = params => httpClient.post('/ticket', params)
+const getTicketStatus = () => httpClient.get('/tickets/status')
+const getTicketList = params => httpClient.get('/tickets'+params)
+const updateTicket = params => httpClient.patch('/tickets', params)
+const createTicket = params => httpClient.post('/tickets', params)
 
 export default {
   getTicketStatus,

@@ -1,26 +1,31 @@
 <template>
   <div>
-    <!-- <layout-1>
-      <div class="pa-10">
-        <router-view/>
-      </div>
-    </layout-1> -->
+    
     <layout-2>
       <div class="pa-10">
         <router-view/>
       </div>
     </layout-2>
+    
+    <loading />
+    <message-dialog />
+    
   </div>
 </template>
 
 <script>
-// import Layout1 from './components/layouts/Layout1.vue'
 import Layout2 from './components/layouts/layout2/Layout2.vue'
+import Loading from './components/Loading.vue'
+import MessageDialog from './components/MessageDialog.vue'
 
 export default {
+  data: () => ({
+    overlay: true
+  }),
   components: {
-    // Layout1,
-    Layout2
+    Layout2,
+    Loading,
+    MessageDialog
   }
 }
 </script>

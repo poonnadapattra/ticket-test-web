@@ -1,5 +1,7 @@
 import { createStore } from 'vuex'
+import baseDialog from './modules/baseDialog'
 import tickets from './modules/tickets'
+import contacts from './modules/contacts'
 
 export default createStore({
   state: {
@@ -9,6 +11,8 @@ export default createStore({
   actions: {
   },
   modules: {
-    tickets
+    baseDialog,
+    tickets,
+    contacts
   }
 })

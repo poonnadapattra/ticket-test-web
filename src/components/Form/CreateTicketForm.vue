@@ -30,7 +30,7 @@
           v-model="dataTicket.contact_id"
           :items="contactList"
           item-title="name"
-          item-value="id"
+          item-value="ID"
           :rules="validation.contact_id"
         ></v-select>
       </v-form>
@@ -61,8 +61,10 @@ export default {
   computed: {
     ...mapGetters('tickets', [
       'statusList',
-      'cardDetail',
-      'contactList'
+      'cardDetail'
+    ]),
+    ...mapGetters('contacts', [
+      'contactList',
     ]),
     validation() {
       return {
@@ -92,6 +94,7 @@ export default {
         this.$emit('submit', this.dataTicket)
         this.reset()
         this.resetValidation()
+        this.close()
       }
     },
     reset() {
