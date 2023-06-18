@@ -26,9 +26,33 @@
         </v-sheet>
       </v-col>
     </v-row>
+    <v-divider class="mt-5 mb-5"></v-divider>
     <v-row align="end" class="pa-0">
+      <v-col class="pt-0 pb-0">
+        <v-select
+          label="Status"
+          v-model="filterParams.order_by"
+          :items="orderList"
+          item-title="name"
+          item-value="value"
+          :hide-details="true"
+          size="small"
+          @update:menu="search"
+        ></v-select>
+      </v-col>
+      <v-col class="pt-0 pb-0">
+        <v-select
+          label="Status"
+          v-model="filterParams.sort_by"
+          :items="sortType"
+          item-title="name"
+          item-value="value"
+          :hide-details="true"
+          @update:menu="search"
+        ></v-select>
+      </v-col>
       <v-col align="end" class="pt-0 pb-0">
-        <v-btn icon="mdi-reload" variant="plain" @click="reload">
+        <v-btn icon="mdi-reload" variant="plain" @click="search">
         </v-btn>
       </v-col>
     </v-row>
@@ -138,16 +162,9 @@ export default {
       moment: moment,
       page: 1,
       size: 10,
-      headers: [
-        {
-          title: 'title',
-          align: 'start',
-          sortable: false,
-          key: 'title',
-        },
-        { title: 'Description', key: 'description' },
-        { title: 'Status', key: 'status' },
-      ],
+      filterParams: { order_by: 'updated_at', sort_by: 'asc' },
+      orderList: [{name: 'Created At', value: 'created_at'}, {name: 'Updated At', value: 'updated_at'}, {name: 'Title', value: 'title'}, {name: 'Status', value: 'status'}],
+      sortType: [{name: 'A to Z', value: 'asc'}, {name: 'Z to A', value: 'desc'}],
       showEditTicketForm: false,
       createTicketDialog: false,
       selectedStatus: 'all'
@@ -155,7 +172,7 @@ export default {
   },
   watch: {
     page(newValue) {
-      this.getTicket({page: newValue, size: this.size, status: this.selectedStatus})
+      this.getTicket({...this.filterParams, page: newValue, size: this.size, status: this.selectedStatus})
     }
   },
   computed: {
@@ -172,7 +189,7 @@ export default {
   mounted() {
     this.getContacts()
     this.getTicketStatus()
-    this.getTicket({page: 1, size: 10})
+    this.getTicket({...this.filterParams, page: 1, size: 10})
   },
   methods: {
     ...mapActions('tickets', [
@@ -188,13 +205,13 @@ export default {
       this.getTicketStatus()
       this.getTicketList(params)
     },
-    reload() {
+    search() {
       this.getTicketStatus()
-      this.getTicket({page: this.page, size: this.size, status: this.selectedStatus})
+      this.getTicket({...this.filterParams, page: this.page, size: this.size, status: this.selectedStatus})
     },
     selectStatus(id, status) {
       this.updateTicket({id, status}).then(() => {
-        this.reload()
+        this.search()
       })
     },
     submitCreateTicket(data) {
@@ -206,7 +223,7 @@ export default {
     },
     selectTicketStatus(status) {
       this.selectedStatus = status
-      const payload = {page: 1, size: this.size, status}
+      const payload = {...this.filterParams, page: 1, size: this.size, status}
       this.getTicket(payload)
     }
   }
