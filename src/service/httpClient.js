@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const httpClient = axios.create({
-  baseURL: "http://localhost:8080/api"
+  baseURL: process.env.VUE_APP_TICKET_API
 });
 
 export default httpClient;
